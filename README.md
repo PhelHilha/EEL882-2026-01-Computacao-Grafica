@@ -23,7 +23,7 @@ No menu, é possível escolher entre dois personagens com características únic
 ### Controles Principais
 *   **Setas do Teclado:** Move o personagem.
 *   **Tecla M:** Ativa o pulso de Sonar (revela o mapa ao redor baseado no alcance do personagem). O uso tem um *cooldown*.
-*   **Tecla V:** Alterna o modo de visualização Debug (mostra o labirinto completo e as formas geométricas que o compõe).
+*   **Teclas Shift + V:** Alterna o modo de visualização Debug (mostra o labirinto completo e as formas geométricas que o compõe).
 *   **Tecla P:** Alterna o desenho dos passos (steps) do algoritmo de Ray Marching.
 
 ## 🛠️ Editor de Fases (Sandbox)
