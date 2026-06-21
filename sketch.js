@@ -5,7 +5,7 @@ const DEBUG_LEVEL = null;
 // Variáveis globais
 
 let showMazeMode = false, hasWon = false; // Controle de estado: exibir labirinto (debug/final), e se a fase foi vencida
-let showSteps = true; // Controla se as bolinhas do algoritmo de Ray Marching serão desenhadas
+let showSteps = false; // Controla se as bolinhas do algoritmo de Ray Marching serão desenhadas
 let batPos, batVel, batHeading; // Vetores de Posição, Velocidade e Rotação do personagem
 let exitPos; // Vetor da posição final que representa a saída do nível
 const BAT_DRAG = 0.90; // Atrito/fricção (desacelera o personagem quando as setas não estão apertadas)
