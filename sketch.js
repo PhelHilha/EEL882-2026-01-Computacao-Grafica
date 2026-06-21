@@ -1256,6 +1256,10 @@ function buildLevel3() {
 function manageMusic() {
     if (!bgmMenu || !bgmMenu.isLoaded() || !bgmPlaying || !bgmPlaying.isLoaded()) return;
 
+    if (getAudioContext().state !== 'running') {
+        return; // Aguarda o navegador liberar o áudio antes de tentar tocar qualquer coisa
+    }
+
     // Define qual música deve tocar baseado no estado atual
     let targetBgm = (gameState === 'playing' || gameState === 'tutorial' || gameState === 'sandboxPlay') ? bgmPlaying : bgmMenu;
 
@@ -1264,7 +1268,7 @@ function manageMusic() {
         currentBgm = targetBgm;
         currentBgm.setVolume(0.4); // Volume médio
         currentBgm.loop();
-    } else if (getAudioContext().state === 'running' && !currentBgm.isPlaying()) {
+    } else if (!currentBgm.isPlaying()) {
         currentBgm.setVolume(0.4);
         currentBgm.loop(); // Failsafe para garantir que está tocando
     }
@@ -1556,6 +1560,8 @@ function sdfBoundary(p) {
 
 // ==================== INPUT ====================
 function keyPressed() {
+    if (getAudioContext().state !== 'running') userStartAudio(); // Força desbloqueio do áudio
+    
     if (gameState === 'sandbox') {
         if (key === 'z' || key === 'Z') sbUndoLast();
         if (keyCode === ESCAPE && sbCurvePoints.length > 0) { sbCurvePoints = []; return; }
@@ -1589,6 +1595,8 @@ function keyPressed() {
 
 // Lida com cliques do mouse no editor (botões, paredes e curvas)
 function mousePressed() {
+    if (getAudioContext().state !== 'running') userStartAudio(); // Força desbloqueio do áudio
+    
     if (gameState !== 'sandbox') return;
 
     // Checa os botões do painel primeiro
