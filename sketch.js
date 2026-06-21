@@ -5,7 +5,7 @@ const DEBUG_LEVEL = null;
 // Variáveis globais
 
 let showMazeMode = false, hasWon = false; // Controle de estado: exibir labirinto (debug/final), e se a fase foi vencida
-let showSteps = false; // Controla se as bolinhas do algoritmo de Ray Marching serão desenhadas
+let showSteps = true; // Controla se as bolinhas do algoritmo de Ray Marching serão desenhadas
 let batPos, batVel, batHeading; // Vetores de Posição, Velocidade e Rotação do personagem
 let exitPos; // Vetor da posição final que representa a saída do nível
 const BAT_DRAG = 0.90; // Atrito/fricção (desacelera o personagem quando as setas não estão apertadas)
@@ -85,6 +85,15 @@ let sbCurves = [];        // Curvas prontas: [{ pts: [{x,y},{x,y},{x,y},{x,y}] }
 let sbCurvePoints = [];   // Pontos de controle sendo colocados em tempo real na criação de curvas
 let sbDragCurve = -1;     // Índice de qual curva exata você está segurando (-1 = nenhuma)
 let sbDragPt = -1;        // Índice do ponto exato dentro da curva que tá sendo arrastado
+
+// Músicas de Fundo
+let bgmMenu, bgmPlaying;
+let currentBgm = null;
+
+function preload() {
+    bgmMenu = loadSound('Bad Piggies - Game Selection [Extended] - Angry Birds Zone (youtube).mp3');
+    bgmPlaying = loadSound('Bad Piggies - Playing the Level [Extended] - Angry Birds Zone (youtube).mp3');
+}
 
 // Inicialização geral do p5.js (roda uma vez quando a página carrega)
 function setup() {
@@ -1242,8 +1251,29 @@ function buildLevel3() {
     addSpline([[170, 323], [206, 182], [-1, 107], [294, 192], [540, 305], [575, 299], [493, 200]]);
     addSpline([[130, 324], [154, 210], [96, 193], [68, 154], [-24, 66], [323, 172], [492, 161]]);
 }
+
+// ==================== MÚSICA DE FUNDO ====================
+function manageMusic() {
+    if (!bgmMenu || !bgmMenu.isLoaded() || !bgmPlaying || !bgmPlaying.isLoaded()) return;
+
+    // Define qual música deve tocar baseado no estado atual
+    let targetBgm = (gameState === 'playing' || gameState === 'tutorial' || gameState === 'sandboxPlay') ? bgmPlaying : bgmMenu;
+
+    if (currentBgm !== targetBgm) {
+        if (currentBgm) currentBgm.stop();
+        currentBgm = targetBgm;
+        currentBgm.setVolume(0.4); // Volume médio
+        currentBgm.loop();
+    } else if (getAudioContext().state === 'running' && !currentBgm.isPlaying()) {
+        currentBgm.setVolume(0.4);
+        currentBgm.loop(); // Failsafe para garantir que está tocando
+    }
+}
+
 // ==================== DRAW PRINCIPAL ====================
 function draw() {
+    manageMusic();
+
     if (gameState === 'menu') { drawMenu(); return; }
     if (gameState === 'charSelect') { drawCharSelect(); return; }
     if (gameState === 'levelComplete') { drawLevelComplete(); return; }
