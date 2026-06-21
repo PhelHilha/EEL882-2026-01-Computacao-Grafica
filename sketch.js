@@ -661,7 +661,6 @@ function sbExportLevel() {
     lines.push('');
     lines.push('// ==================== NÍVEL ' + levelNum + ' (Exportado do Sandbox) ====================');
     lines.push('function buildLevel' + levelNum + '() {');
-    // Funções geométricas agora são globais, então não precisamos mais injetá-las aqui
 
     // Posição inicial do jogador
     let sx = OX + sbStartCell.c * CS + CS / 2;
@@ -950,8 +949,10 @@ function initLevel(level) {
 
 // Inicia o jogo a partir do nível atual selecionado
 function startGame() {
-    gameState = 'playing';
     initLevel(currentLevel);
+    // Na fase 1, exibe o mini-tutorial antes de liberar o movimento
+    if (currentLevel === 1) gameState = 'tutorial';
+    else gameState = 'playing';
 }
 
 // ==================== NÍVEL 1 (FIZ NO BRAÇO) ====================
@@ -1339,16 +1340,22 @@ function draw() {
     }
 
     // Instruções no início da fase
-    if (levelStartTimer > 0) {
+    if (levelStartTimer > 0 && gameState !== 'tutorial') {
         let alphaFade = map(levelStartTimer, 0, 60, 0, 180, true);
         fill(0, 255, 120, alphaFade); textSize(11); textAlign(LEFT, TOP);
         text('Mover usando as setas, e apenas M para usar raio', barX, barY + 15);
         levelStartTimer--;
     }
+
+    if (gameState === 'tutorial') {
+        drawTutorialOverlay();
+    }
 }
 
 // Lê as setas do teclado e move o morcego
 function moveBat() {
+    // Impede o movimento do jogador enquanto a tela de tutorial estiver aberta
+    if (gameState === 'tutorial') return;
     if (keyIsDown(LEFT_ARROW)) { batVel.x -= 0.5; batHeading = PI; }
     if (keyIsDown(RIGHT_ARROW)) { batVel.x += 0.5; batHeading = 0; }
     if (keyIsDown(UP_ARROW)) { batVel.y -= 0.5; batHeading = -PI / 2; }
@@ -1528,7 +1535,7 @@ function keyPressed() {
     if (gameState === 'sandboxPlay') {
         if (keyCode === ESCAPE) { gameState = 'sandbox'; return; }
         if (key === 'm' || key === 'M') emitSonar();
-        if (key === 'v' || key === 'V') showMazeMode = !showMazeMode;
+        if ((key === 'v' || key === 'V') && keyIsDown(SHIFT)) showMazeMode = !showMazeMode;
         if (key === 'p' || key === 'P') showSteps = !showSteps;
         return;
     }
@@ -1536,13 +1543,14 @@ function keyPressed() {
         if (keyCode === LEFT_ARROW) selectedChar = 0;
         if (keyCode === RIGHT_ARROW) selectedChar = 1;
     }
-    if (key === 'v' || key === 'V') { if (gameState === 'playing') showMazeMode = !showMazeMode; }
+    if ((key === 'v' || key === 'V') && keyIsDown(SHIFT)) { if (gameState === 'playing') showMazeMode = !showMazeMode; }
     if (key === 'm' || key === 'M') { if (gameState === 'playing') emitSonar(); }
     if (key === 'p' || key === 'P') { if (gameState === 'playing') showSteps = !showSteps; }
     if (key === 's' || key === 'S') { if (gameState === 'menu') { gameState = 'sandbox'; } }
 
     if (keyCode === ENTER || keyCode === RETURN) {
-        if (gameState === 'menu') gameState = 'charSelect';
+        if (gameState === 'tutorial') gameState = 'playing';
+        else if (gameState === 'menu') gameState = 'charSelect';
         else if (gameState === 'charSelect') startGame();
         else if (gameState === 'levelComplete') { currentLevel++; startGame(); }
         else if (gameState === 'gameComplete') { currentLevel = 1; gameState = 'menu'; }
@@ -1700,4 +1708,69 @@ function drawMenuParticles() {
 function windowResized() {
     resizeCanvas(windowWidth, windowHeight);
     updateSandboxLayout();
+}
+
+// ==================== TUTORIAL ====================
+// Desenha a tela de tutorial sobreposta ao jogo na primeira fase
+function drawTutorialOverlay() {
+    // Fundo escuro com baixa opacidade
+    fill(0, 0, 0, 200);
+    rect(0, 0, width, height);
+
+    let boxW = 380;
+    let boxH = 250;
+    let bx = width / 2 - boxW / 2;
+    let by = height / 2 - boxH / 2;
+
+    // Quadrado com baixa opacidade e borda
+    fill(15, 25, 20, 230);
+    stroke(0, 255, 120, 100);
+    strokeWeight(2);
+    rect(bx, by, boxW, boxH, 15);
+
+    noStroke();
+    fill(0, 255, 120);
+    textAlign(CENTER, TOP);
+    textSize(24);
+    text("COMO JOGAR", width / 2, by + 25);
+
+    // Texto Setas
+    fill(200);
+    textSize(16);
+    textAlign(LEFT, CENTER);
+    text("Mover o personagem", bx + 160, by + 105);
+
+    // Desenho Setas
+    let arrowX = bx + 80;
+    let arrowY = by + 105;
+    drawKeyBox(arrowX, arrowY - 25, "↑");
+    drawKeyBox(arrowX - 25, arrowY, "←");
+    drawKeyBox(arrowX, arrowY, "↓");
+    drawKeyBox(arrowX + 25, arrowY, "→");
+
+    // Texto Sonar
+    text("Usar Raio Sonar", bx + 160, by + 165);
+
+    // Desenho M
+    drawKeyBox(bx + 80, by + 165, "M");
+
+    // Dica de Enter
+    let blinkAlpha = map(sin(frameCount * 0.08), -1, 1, 80, 255);
+    fill(0, 200, 100, blinkAlpha);
+    textAlign(CENTER, BOTTOM);
+    textSize(14);
+    text("Pressione ENTER para começar", width / 2, by + boxH - 20);
+}
+
+// Função auxiliar para desenhar o quadrado das teclas (setas e 'M') no painel de tutorial
+function drawKeyBox(x, y, label) {
+    fill(30, 40, 35);
+    stroke(0, 255, 120, 150);
+    strokeWeight(1.5);
+    rect(x - 12, y - 12, 24, 24, 4);
+    noStroke();
+    fill(0, 255, 120);
+    textAlign(CENTER, CENTER);
+    textSize(12);
+    text(label, x, y + 1); // +1 para compensar o alinhamento visual
 }
