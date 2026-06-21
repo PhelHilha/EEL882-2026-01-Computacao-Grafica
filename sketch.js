@@ -1,5 +1,5 @@
 // ======= DEV: mude para 1 ou 2 para pular direto para a fase, null = menu normal =======
-const DEBUG_LEVEL = null;
+const DEBUG_LEVEL = 3;
 // ========================================================================================
 
 // Variáveis globais
@@ -34,7 +34,7 @@ let menuParticles = []; // Partículas de fundo usadas apenas nas telas de menu
 let ctrlDiv; // Divisão escondida para gerenciar lógicas do DOM pelo p5
 
 // ==== DEFINIÇÃO DE PERSONAGENS E STATUS ====
-let selectedChar = 0; // 0 para Morcego, 1 para Golfinho
+let selectedChar = 1; // 0 para Morcego, 1 para Golfinho
 const CHAR_NAMES = ['Morcego', 'Golfinho']; // Nomes para usar no menu e interface
 const CHAR_DESCRIPTIONS = [ // Descrições exibidas na seleção de classe
     'Sonar em cone direcional\nAlcance longo | Foco frontal',
@@ -1322,7 +1322,7 @@ function draw() {
         }
     }
 
-    if (p5.Vector.dist(batPos, exitPos) < 40) {
+    if (p5.Vector.dist(batPos, exitPos) < 15) {
         if (gameState === 'sandboxPlay') {
             // Ganhou a fase sandbox — volta pro editor
             gameState = 'sandbox';
@@ -1390,7 +1390,7 @@ function draw() {
 function moveBat() {
     // Impede o movimento do jogador enquanto a tela de tutorial estiver aberta
     if (gameState === 'tutorial') return;
-    
+
     let left = keyIsDown(LEFT_ARROW) || keyIsDown(65); // 65 = A
     let right = keyIsDown(RIGHT_ARROW) || keyIsDown(68); // 68 = D
     let up = keyIsDown(UP_ARROW) || keyIsDown(87); // 87 = W
@@ -1400,7 +1400,7 @@ function moveBat() {
     if (right) { batVel.x += 0.5; batHeading = 0; }
     if (up) { batVel.y -= 0.5; batHeading = -PI / 2; }
     if (down) { batVel.y += 0.5; batHeading = PI / 2; }
-    
+
     if (up && right) batHeading = -PI / 4;
     if (up && left) batHeading = -3 * PI / 4;
     if (down && right) batHeading = PI / 4;
@@ -1477,9 +1477,10 @@ function rayMarch(ro, rd, maxRange, collectSteps) {
         if (collectSteps) stepsData.push({ pos: currentPos.copy(), radius: d });
         if (d < 1.5) return { hit: true, pos: currentPos, stepsData };
         totalDist += d;
-        if (totalDist > maxRange) break;
+        if (totalDist >= maxRange) break;
     }
-    return { hit: false, pos: currentPos, stepsData };
+    // Retorna a posição exata no limite do alcance para ficar um arco perfeito
+    return { hit: false, pos: p5.Vector.add(ro, p5.Vector.mult(rd, maxRange)), stepsData };
 }
 
 // ==================== CONSTRUÇÃO GEOMÉTRICA GERAL ====================
@@ -1540,7 +1541,11 @@ function drawDolphin(x, y, angle) {
     fill(90, 130, 170);
     beginShape(); vertex(-2, -18); vertex(0, -26); vertex(2, -18); endShape(CLOSE);
     fill(70, 110, 150);
-    beginShape(); vertex(0, -6); bezierVertex(-2, -8, -10, -14, -12, -10); bezierVertex(-10, -6, -4, -2, 0, 0); endShape(CLOSE);
+    beginShape();
+    vertex(0, -6);
+    bezierVertex(-2, -2, -1, 4, 0, 6);
+    bezierVertex(1, 4, 2, -2, 0, -6);
+    endShape(CLOSE);
     let finBounce = sin(frameCount * 0.25) * 8;
     fill(70, 110, 150);
     beginShape(); vertex(-6, 0); bezierVertex(-10, 2, -22, finBounce, -20, finBounce + 8); bezierVertex(-14, 8, -8, 6, -5, 4); endShape(CLOSE);
@@ -1549,7 +1554,12 @@ function drawDolphin(x, y, angle) {
     fill(70, 110, 150);
     beginShape(); vertex(-1, 20); bezierVertex(-4, 24, -12 + tailSwing, 28, -14 + tailSwing, 24); bezierVertex(-10 + tailSwing, 22, -4, 20, 0, 22); endShape(CLOSE);
     beginShape(); vertex(1, 20); bezierVertex(4, 24, 12 + tailSwing, 28, 14 + tailSwing, 24); bezierVertex(10 + tailSwing, 22, 4, 20, 0, 22); endShape(CLOSE);
-    fill(20); ellipse(-5, -12, 3, 3); fill(255); ellipse(-4.5, -12.5, 1.2, 1.2);
+    fill(20);
+    ellipse(-5, -12, 3, 3);
+    ellipse(5, -12, 3, 3);
+    fill(255);
+    ellipse(-4.5, -12.5, 1.2, 1.2);
+    ellipse(5.5, -12.5, 1.2, 1.2);
     pop();
 }
 
