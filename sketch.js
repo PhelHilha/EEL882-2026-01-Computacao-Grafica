@@ -1377,7 +1377,7 @@ function draw() {
     if (levelStartTimer > 0 && gameState !== 'tutorial') {
         let alphaFade = map(levelStartTimer, 0, 60, 0, 180, true);
         fill(0, 255, 120, alphaFade); textSize(11); textAlign(LEFT, TOP);
-        text('Mover usando as setas, e apenas M para usar raio', barX, barY + 15);
+        text('Mover usando setas ou WASD, e M para usar raio', barX, barY + 15);
         levelStartTimer--;
     }
 
@@ -1390,14 +1390,21 @@ function draw() {
 function moveBat() {
     // Impede o movimento do jogador enquanto a tela de tutorial estiver aberta
     if (gameState === 'tutorial') return;
-    if (keyIsDown(LEFT_ARROW)) { batVel.x -= 0.5; batHeading = PI; }
-    if (keyIsDown(RIGHT_ARROW)) { batVel.x += 0.5; batHeading = 0; }
-    if (keyIsDown(UP_ARROW)) { batVel.y -= 0.5; batHeading = -PI / 2; }
-    if (keyIsDown(DOWN_ARROW)) { batVel.y += 0.5; batHeading = PI / 2; }
-    if (keyIsDown(UP_ARROW) && keyIsDown(RIGHT_ARROW)) batHeading = -PI / 4;
-    if (keyIsDown(UP_ARROW) && keyIsDown(LEFT_ARROW)) batHeading = -3 * PI / 4;
-    if (keyIsDown(DOWN_ARROW) && keyIsDown(RIGHT_ARROW)) batHeading = PI / 4;
-    if (keyIsDown(DOWN_ARROW) && keyIsDown(LEFT_ARROW)) batHeading = 3 * PI / 4;
+    
+    let left = keyIsDown(LEFT_ARROW) || keyIsDown(65); // 65 = A
+    let right = keyIsDown(RIGHT_ARROW) || keyIsDown(68); // 68 = D
+    let up = keyIsDown(UP_ARROW) || keyIsDown(87); // 87 = W
+    let down = keyIsDown(DOWN_ARROW) || keyIsDown(83); // 83 = S
+
+    if (left) { batVel.x -= 0.5; batHeading = PI; }
+    if (right) { batVel.x += 0.5; batHeading = 0; }
+    if (up) { batVel.y -= 0.5; batHeading = -PI / 2; }
+    if (down) { batVel.y += 0.5; batHeading = PI / 2; }
+    
+    if (up && right) batHeading = -PI / 4;
+    if (up && left) batHeading = -3 * PI / 4;
+    if (down && right) batHeading = PI / 4;
+    if (down && left) batHeading = 3 * PI / 4;
 }
 
 // Desenha os pontos deixados pelos hits do sonar
@@ -1561,7 +1568,7 @@ function sdfBoundary(p) {
 // ==================== INPUT ====================
 function keyPressed() {
     if (getAudioContext().state !== 'running') userStartAudio(); // Força desbloqueio do áudio
-    
+
     if (gameState === 'sandbox') {
         if (key === 'z' || key === 'Z') sbUndoLast();
         if (keyCode === ESCAPE && sbCurvePoints.length > 0) { sbCurvePoints = []; return; }
@@ -1576,8 +1583,8 @@ function keyPressed() {
         return;
     }
     if (gameState === 'charSelect') {
-        if (keyCode === LEFT_ARROW) selectedChar = 0;
-        if (keyCode === RIGHT_ARROW) selectedChar = 1;
+        if (keyCode === LEFT_ARROW || key === 'a' || key === 'A') selectedChar = 0;
+        if (keyCode === RIGHT_ARROW || key === 'd' || key === 'D') selectedChar = 1;
     }
     if ((key === 'v' || key === 'V') && keyIsDown(SHIFT)) { if (gameState === 'playing') showMazeMode = !showMazeMode; }
     if (key === 'm' || key === 'M') { if (gameState === 'playing') emitSonar(); }
@@ -1596,7 +1603,7 @@ function keyPressed() {
 // Lida com cliques do mouse no editor (botões, paredes e curvas)
 function mousePressed() {
     if (getAudioContext().state !== 'running') userStartAudio(); // Força desbloqueio do áudio
-    
+
     if (gameState !== 'sandbox') return;
 
     // Checa os botões do painel primeiro
@@ -1778,13 +1785,15 @@ function drawTutorialOverlay() {
     textAlign(LEFT, CENTER);
     text("Mover o personagem", bx + 160, by + 105);
 
-    // Desenho Setas
+    // Desenho Setas / WASD alternando
+    let showWASD = (frameCount % 120) > 60; // Troca a cada 60 frames (~1 seg)
+
     let arrowX = bx + 80;
     let arrowY = by + 105;
-    drawKeyBox(arrowX, arrowY - 25, "↑");
-    drawKeyBox(arrowX - 25, arrowY, "←");
-    drawKeyBox(arrowX, arrowY, "↓");
-    drawKeyBox(arrowX + 25, arrowY, "→");
+    drawKeyBox(arrowX, arrowY - 25, showWASD ? "W" : "↑");
+    drawKeyBox(arrowX - 25, arrowY, showWASD ? "A" : "←");
+    drawKeyBox(arrowX, arrowY, showWASD ? "S" : "↓");
+    drawKeyBox(arrowX + 25, arrowY, showWASD ? "D" : "→");
 
     // Texto Sonar
     text("Usar Raio Sonar", bx + 160, by + 165);
