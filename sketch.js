@@ -1,5 +1,5 @@
 // ======= DEV: mude para 1 ou 2 para pular direto para a fase, null = menu normal =======
-const DEBUG_LEVEL = 3;
+const DEBUG_LEVEL = null;
 // ========================================================================================
 
 // Variáveis globais
@@ -34,7 +34,7 @@ let menuParticles = []; // Partículas de fundo usadas apenas nas telas de menu
 let ctrlDiv; // Divisão escondida para gerenciar lógicas do DOM pelo p5
 
 // ==== DEFINIÇÃO DE PERSONAGENS E STATUS ====
-let selectedChar = 1; // 0 para Morcego, 1 para Golfinho
+let selectedChar = 0; // 0 para Morcego, 1 para Golfinho
 const CHAR_NAMES = ['Morcego', 'Golfinho']; // Nomes para usar no menu e interface
 const CHAR_DESCRIPTIONS = [ // Descrições exibidas na seleção de classe
     'Sonar em cone direcional\nAlcance longo | Foco frontal',
