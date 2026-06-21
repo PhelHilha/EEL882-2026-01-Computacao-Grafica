@@ -29,6 +29,7 @@ let TOTAL_LEVELS = 3; // Quantidade de níveis fixos contidos no jogo
 let customLevels = []; // Array que salva dinamicamente as funções de fases criadas no modo editor
 let levelCompleteTimer = 0; // Cronômetro de animação da tela de fase completa
 const LEVEL_COMPLETE_DURATION = 180; // Tempo que a tela de "fase completa" dura antes de mudar
+let levelStartTimer = 0; // Cronômetro de animação do aviso de controles
 let menuParticles = []; // Partículas de fundo usadas apenas nas telas de menu
 let ctrlDiv; // Divisão escondida para gerenciar lógicas do DOM pelo p5
 
@@ -648,6 +649,7 @@ function sbPlayLevel() {
     batHeading = 0;
     camPos = batPos.copy();
     gameState = 'sandboxPlay';
+    levelStartTimer = 300;
 }
 
 // ==================== EXPORTAR FASE ====================
@@ -943,6 +945,7 @@ function initLevel(level) {
     else if (level === 3) buildLevel3();
     else if (level > 3 && customLevels[level - 4]) customLevels[level - 4]();
     camPos = batPos.copy();
+    levelStartTimer = 300;
 }
 
 // Inicia o jogo a partir do nível atual selecionado
@@ -1333,6 +1336,14 @@ function draw() {
     if (gameState === 'sandboxPlay') {
         fill(0, 150, 255, 180); textSize(13); textAlign(RIGHT, TOP);
         text('ESC → voltar ao editor', width - 15, 15);
+    }
+
+    // Instruções no início da fase
+    if (levelStartTimer > 0) {
+        let alphaFade = map(levelStartTimer, 0, 60, 0, 180, true);
+        fill(0, 255, 120, alphaFade); textSize(11); textAlign(LEFT, TOP);
+        text('Mover usando as setas, e apenas M para usar raio', barX, barY + 15);
+        levelStartTimer--;
     }
 }
 
