@@ -100,8 +100,6 @@ function setup() {
     createCanvas(windowWidth, windowHeight);
     textFont('monospace');
 
-    ctrlDiv = createDiv().style('display', 'none');
-
     for (let i = 0; i < 60; i++) {
         menuParticles.push({
             x: random(width), y: random(height),
