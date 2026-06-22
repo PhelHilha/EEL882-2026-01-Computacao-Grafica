@@ -10,9 +10,10 @@
 Este é um jogo 2D desenvolvido em JavaScript utilizando a biblioteca **p5.js**. O objetivo principal é guiar um personagem através de um labirinto na escuridão total, utilizando apenas a mecânica de ecolocalização (sonar) para revelar o cenário ao redor. 
 
 Decidi focar nos conceitos apresentados nas aulas de computação gráfica que mais me interessei:
-*   **Ray Marching:** Utilizado para calcular a emissão dos raios de som do sonar, detectando obstáculos e paredes.
-*   **Signed Distance Fields (SDF):** Usado para detectar as distâncias da geometria da cena e garantir as colisões.
-*   **Curvas de Bézier e Splines:** O jogo suporta paredes arredondadas e orgânicas, criadas a partir do algoritmo de Bézier.
+
+*   **Signed Distance Fields (SDF):** Usado para modelagem do cenário ao invés de utilizar rasterização geométrica, detecta matematicamente a menor distância euclidiana até a superfície da geometria da cena. Isso garante colisões do personagem de forma orgânica, precisa e contínua, servindo de fundação para a renderização.
+*   **Ray Marching (Sphere Tracing):** Algoritmo empregado para calcular a propagação dos raios de som do sonar. Ele avança espacialmente de forma iterativa utilizando a distância segura obtida pela SDF, garantindo a detecção ágil e precisa de intersecções do som com a topologia do ambiente.
+*   **Curvas de Bézier e Splines Cúbicas:** Aplicadas para definir geometrias estruturais não-lineares. Para se integrarem ao motor SDF sem um custo computacional proibitivo, a lógica discretiza o cálculo polinomial, permitindo desenhar paredes orgânicas e sinuosas de forma contínua pelo cenário.
 
 ## 🎮 Como Jogar
 O jogador deve encontrar a saída (círculo verde) utilizando o sonar para mapear o labirinto.
