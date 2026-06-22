@@ -86,19 +86,23 @@ let sbCurvePoints = [];   // Pontos de controle sendo colocados em tempo real na
 let sbDragCurve = -1;     // Índice de qual curva exata você está segurando (-1 = nenhuma)
 let sbDragPt = -1;        // Índice do ponto exato dentro da curva que tá sendo arrastado
 
-// Músicas de Fundo
+// Músicas de Fundo e SFX
 let bgmMenu, bgmPlaying;
 let currentBgm = null;
+let sfxSonar;
 
 function preload() {
     bgmMenu = loadSound('Bad Piggies - Game Selection [Extended] - Angry Birds Zone (youtube).mp3');
     bgmPlaying = loadSound('Bad Piggies - Playing the Level [Extended] - Angry Birds Zone (youtube).mp3');
+    sfxSonar = loadSound('Sonar - Sound.mp3');
 }
 
 // Inicialização geral do p5.js (roda uma vez quando a página carrega)
 function setup() {
     createCanvas(windowWidth, windowHeight);
     textFont('monospace');
+
+    ctrlDiv = createDiv().style('display', 'none');
 
     for (let i = 0; i < 60; i++) {
         menuParticles.push({
@@ -1437,6 +1441,12 @@ function drawPulse() {
 // Dispara o sonar se o cooldown já acabou
 function emitSonar() {
     if (sonarCooldown > 0) return;
+
+    if (getAudioContext().state === 'running' && sfxSonar && sfxSonar.isLoaded()) {
+        sfxSonar.setVolume(0.6);
+        sfxSonar.play();
+    }
+
     currentPulseRaysData = [];
     if (selectedChar === 0) emitBatSonar(); else emitDolphinSonar();
     pulseTimer = PULSE_DURATION; sonarCooldown = SONAR_COOLDOWN;
