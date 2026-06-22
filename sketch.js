@@ -173,10 +173,8 @@ function buildSandboxObstacles() {
     }
 
     // Borda externa
-    // Topo (com abertura pra saída)
-    let exitX = OX + sbExitCell.c * CS;
-    addSeg(OX, OY, exitX - CS / 2, OY);
-    addSeg(exitX + CS / 2, OY, OX + SB_COLS * CS, OY);
+    // Topo
+    addSeg(OX, OY, OX + SB_COLS * CS, OY);
     // Baixo
     addSeg(OX, OY + SB_ROWS * CS, OX + SB_COLS * CS, OY + SB_ROWS * CS);
     // Esquerda
@@ -379,10 +377,8 @@ function drawSandbox() {
 
     // Linhas da borda externa
     stroke(0, 255, 120, 140); strokeWeight(3); strokeCap(ROUND);
-    // topo com abertura da saída
-    let exitGapX = OX + sbExitCell.c * CS;
-    line(OX, OY, exitGapX, OY);
-    line(exitGapX + CS, OY, OX + SB_COLS * CS, OY);
+    // topo
+    line(OX, OY, OX + SB_COLS * CS, OY);
     // outros lados
     line(OX + SB_COLS * CS, OY, OX + SB_COLS * CS, OY + SB_ROWS * CS);
     line(OX, OY + SB_ROWS * CS, OX + SB_COLS * CS, OY + SB_ROWS * CS);
@@ -686,13 +682,10 @@ function sbExportLevel() {
 
     // Borda externa
     lines.push('    // Paredes externas');
-    let exitGapX1 = OX + sbExitCell.c * CS - CS / 2;
-    let exitGapX2 = OX + sbExitCell.c * CS + CS / 2;
     let totalW = SB_COLS * CS;
     let totalH = SB_ROWS * CS;
-    // Parede do topo com abertura da saída
-    if (exitGapX1 > OX) lines.push('    addPoly([[' + OX + ', ' + OY + '], [' + exitGapX1 + ', ' + OY + ']]);');
-    if (exitGapX2 < OX + totalW) lines.push('    addPoly([[' + exitGapX2 + ', ' + OY + '], [' + (OX + totalW) + ', ' + OY + ']]);');
+    // Parede do topo
+    lines.push('    addPoly([[' + OX + ', ' + OY + '], [' + (OX + totalW) + ', ' + OY + ']]);');
     // Baixo
     lines.push('    addPoly([[' + OX + ', ' + (OY + totalH) + '], [' + (OX + totalW) + ', ' + (OY + totalH) + ']]);');
     // Esquerda
